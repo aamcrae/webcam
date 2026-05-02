@@ -124,7 +124,7 @@ func (c *Snapper) Open(device string, format frame.FourCC, w, h int) (ret error)
 func (c *Snapper) Snap() (frame.Framer, error) {
 	snap, ok := <-c.stream
 	if !ok {
-		return nil, fmt.Errorf("No frame received")
+		return nil, webcam.NoFrameError
 	}
 	return c.framer(snap.frm, func() {
 		c.cam.ReleaseFrame(snap.index)

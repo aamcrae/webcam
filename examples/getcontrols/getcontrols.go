@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 	cam, err := webcam.Open(*device)
 	if err != nil {
-		panic(fmt.Errorf("%s: %v", *device, err.Error()))
+		panic(fmt.Errorf("%s: %w", *device, err.Error()))
 	}
 	defer cam.Close()
 

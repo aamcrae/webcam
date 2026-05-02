@@ -8,6 +8,9 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+var TimeoutError = errors.New("camera timeout")
+var NoFrameError = errors.New("no frame received")
+
 // Webcam object
 type Webcam struct {
 	fd        uintptr
