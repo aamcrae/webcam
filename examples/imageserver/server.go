@@ -110,15 +110,15 @@ func main() {
 			}
 		}
 	}
-	encodeJpeg := func(w http.ResponseWriter, f frame.Frame) error {
+	encodeJpeg := func(w http.ResponseWriter, f frame.Framer) error {
 		w.Header().Set("Content-Type", "image/jpeg")
 		return jpeg.Encode(w, f, nil)
 	}
-	encodePNG := func(w http.ResponseWriter, f frame.Frame) error {
+	encodePNG := func(w http.ResponseWriter, f frame.Framer) error {
 		w.Header().Set("Content-Type", "image/png")
 		return png.Encode(w, f)
 	}
-	encodeGIF := func(w http.ResponseWriter, f frame.Frame) error {
+	encodeGIF := func(w http.ResponseWriter, f frame.Framer) error {
 		w.Header().Set("Content-Type", "image/gif")
 		return gif.Encode(w, f, nil)
 	}
@@ -142,7 +142,7 @@ func main() {
 	log.Fatal(server.ListenAndServe())
 }
 
-func publishImage(cm *snapshot.Snapper, w http.ResponseWriter, r *http.Request, encode func(http.ResponseWriter, frame.Frame) error) {
+func publishImage(cm *snapshot.Snapper, w http.ResponseWriter, r *http.Request, encode func(http.ResponseWriter, frame.Framer) error) {
 	if *verbose {
 		log.Printf("URL request: %v", r.URL)
 	}

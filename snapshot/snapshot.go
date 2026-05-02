@@ -36,7 +36,7 @@ type Snapper struct {
 	cam     *webcam.Webcam
 	Timeout uint32
 	Buffers uint32
-	framer  func([]byte, func()) (frame.Frame, error)
+	framer  func([]byte, func()) (frame.Framer, error)
 	stop    chan struct{}
 	stream  chan snap
 }
@@ -120,7 +120,7 @@ func (c *Snapper) Open(device string, format frame.FourCC, w, h int) (ret error)
 }
 
 // Snap returns one frame from the camera.
-func (c *Snapper) Snap() (frame.Frame, error) {
+func (c *Snapper) Snap() (frame.Framer, error) {
 	snap, ok := <-c.stream
 	if !ok {
 		return nil, fmt.Errorf("No frame received")

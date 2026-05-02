@@ -18,13 +18,12 @@ import (
 	"bytes"
 	"fmt"
 	"image"
-	"image/color"
 	"image/jpeg"
 	"runtime"
 )
 
 type fMJPEG struct {
-	img     image.Image
+	image.Image
 	release func()
 }
 
@@ -90,14 +89,14 @@ func init() {
 	RegisterFramer("MJPG", newMJPGFramer)
 }
 
-func newMJPGFramer(w, h, stride, size int) func([]byte, func()) (Frame, error) {
+func newMJPGFramer(w, h, stride, size int) func([]byte, func()) (Framer, error) {
 	return mjpegFramer
 }
 
-// Wrap a mjpeg block in a Frame so that it can be used as an image.
+// Wrap a mjpeg block in a Framer so that it can be used as an image.
 // The standard jpeg decoding does not work if there are no Huffman tables,
 // so check the frame and add a default table if required.
-func mjpegFramer(f []byte, rel func()) (Frame, error) {
+func mjpegFramer(f []byte, rel func()) (Framer, error) {
 	img, err := decodeMJPEG(f)
 	if err != nil {
 		if rel != nil {
@@ -105,8 +104,8 @@ func mjpegFramer(f []byte, rel func()) (Frame, error) {
 		}
 		return nil, err
 	}
-	fr := &fMJPEG{img: img, release: rel}
-	runtime.SetFinalizer(fr, func(obj Frame) {
+	fr := &fMJPEG{Image: img, release: rel}
+	runtime.SetFinalizer(fr, func(obj Framer) {
 		obj.Release()
 	})
 	return fr, nil
@@ -136,18 +135,6 @@ func decodeMJPEG(f []byte) (image.Image, error) {
 		buf = bytes.NewBuffer(f)
 	}
 	return jpeg.Decode(buf)
-}
-
-func (f *fMJPEG) ColorModel() color.Model {
-	return f.img.ColorModel()
-}
-
-func (f *fMJPEG) Bounds() image.Rectangle {
-	return f.img.Bounds()
-}
-
-func (f *fMJPEG) At(x, y int) color.Color {
-	return f.img.At(x, y)
 }
 
 // Done with frame, release back to camera (if required).

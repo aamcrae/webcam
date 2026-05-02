@@ -35,14 +35,14 @@ func init() {
 	RegisterFramer("YUYV", newFramerYUYV422)
 }
 
-func newFramerYUYV422(w, h, stride, size int) func([]byte, func()) (Frame, error) {
-	return func(b []byte, rel func()) (Frame, error) {
+func newFramerYUYV422(w, h, stride, size int) func([]byte, func()) (Framer, error) {
+	return func(b []byte, rel func()) (Framer, error) {
 		return frameYUYV422(size, stride, w, h, b, rel)
 	}
 }
 
-// Wrap a raw webcam frame in a Frame so that it can be used as an image.
-func frameYUYV422(size, stride, w, h int, b []byte, rel func()) (Frame, error) {
+// Wrap a raw webcam frame in a Framer so that it can be used as an image.
+func frameYUYV422(size, stride, w, h int, b []byte, rel func()) (Framer, error) {
 	if len(b) != size {
 		if rel != nil {
 			defer rel()
@@ -50,7 +50,7 @@ func frameYUYV422(size, stride, w, h int, b []byte, rel func()) (Frame, error) {
 		return nil, fmt.Errorf("Wrong frame length (exp: %d, read %d)", size, len(b))
 	}
 	f := &fYUYV422{model: color.YCbCrModel, b: image.Rect(0, 0, w, h), stride: stride, frame: b, release: rel}
-	runtime.SetFinalizer(f, func(obj Frame) {
+	runtime.SetFinalizer(f, func(obj Framer) {
 		obj.Release()
 	})
 	return f, nil

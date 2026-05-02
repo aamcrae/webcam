@@ -39,24 +39,24 @@ func init() {
 }
 
 // Return a function that is used as a framer for RGB3.
-func newFramerRGB3(w, h, stride, size int) func([]byte, func()) (Frame, error) {
+func newFramerRGB3(w, h, stride, size int) func([]byte, func()) (Framer, error) {
 	return newRGBFramer(w, h, stride, size, 0, 1, 2)
 }
 
 // Return a function that is used as a framer for BGR3.
-func newFramerBGR3(w, h, stride, size int) func([]byte, func()) (Frame, error) {
+func newFramerBGR3(w, h, stride, size int) func([]byte, func()) (Framer, error) {
 	return newRGBFramer(w, h, stride, size, 2, 1, 0)
 }
 
 // Return a function that is used as a generic RGB framer.
-func newRGBFramer(w, h, stride, size, r, g, b int) func([]byte, func()) (Frame, error) {
-	return func(buf []byte, rel func()) (Frame, error) {
+func newRGBFramer(w, h, stride, size, r, g, b int) func([]byte, func()) (Framer, error) {
+	return func(buf []byte, rel func()) (Framer, error) {
 		return frameRGB(size, stride, w, h, r, g, b, buf, rel)
 	}
 }
 
-// Wrap a raw webcam frame in a Frame so that it can be used as an image.
-func frameRGB(size, stride, w, h, rof, gof, bof int, b []byte, rel func()) (Frame, error) {
+// Wrap a raw webcam frame in a Framer so that it can be used as an image.
+func frameRGB(size, stride, w, h, rof, gof, bof int, b []byte, rel func()) (Framer, error) {
 	if len(b) != size {
 		if rel != nil {
 			defer rel()
@@ -65,7 +65,7 @@ func frameRGB(size, stride, w, h, rof, gof, bof int, b []byte, rel func()) (Fram
 	}
 	f := &fRGB{model: color.RGBAModel, b: image.Rect(0, 0, w, h), stride: stride,
 		roffs: rof, goffs: gof, boffs: bof, frame: b, release: rel}
-	runtime.SetFinalizer(f, func(obj Frame) {
+	runtime.SetFinalizer(f, func(obj Framer) {
 		obj.Release()
 	})
 	return f, nil

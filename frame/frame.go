@@ -24,24 +24,25 @@ import (
 
 type FourCC string
 
-// Release is called when the frame is no longer in use.
+// Framer defines an interface to a single image associated with a release method.
+// Release must be called when the frame is no longer in use.
 // The implementation may set a finalizer on the frame as a precaution
 // in case Release is not called (which would cause a kernel resource leak).
-type Frame interface {
+type Framer interface {
 	image.Image
 	Release()
 }
 
-var framerFactoryMap = map[FourCC]func(int, int, int, int) func([]byte, func()) (Frame, error){}
+var framerFactoryMap = map[FourCC]func(int, int, int, int) func([]byte, func()) (Framer, error){}
 
 // RegisterFramer registers a framer factory for a format.
 // Note that only one handler can be registered for any single format.
-func RegisterFramer(format FourCC, factory func(int, int, int, int) func([]byte, func()) (Frame, error)) {
+func RegisterFramer(format FourCC, factory func(int, int, int, int) func([]byte, func()) (Framer, error)) {
 	framerFactoryMap[format] = factory
 }
 
 // GetFramer returns a function that wraps the frame for this format.
-func GetFramer(format FourCC, w, h, stride, size int) (func([]byte, func()) (Frame, error), error) {
+func GetFramer(format FourCC, w, h, stride, size int) (func([]byte, func()) (Framer, error), error) {
 	if factory, ok := framerFactoryMap[format]; ok {
 		return factory(w, h, stride, size), nil
 	}
