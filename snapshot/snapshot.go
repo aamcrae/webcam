@@ -16,6 +16,7 @@
 package snapshot
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/aamcrae/webcam"
@@ -134,13 +135,10 @@ func (c *Snapper) Snap() (frame.Framer, error) {
 // sends them to a channel that is ready.
 func (c *Snapper) capture() {
 	for {
-		err := c.cam.WaitForFrame(c.Timeout)
-
-		switch err.(type) {
-		case nil:
-		case *webcam.Timeout:
-			continue
-		default:
+		if err := c.cam.WaitForFrame(c.Timeout); err != nil {
+			if errors.Is(err, webcam.TimeoutError) {
+				continue
+			}
 			panic(err)
 		}
 

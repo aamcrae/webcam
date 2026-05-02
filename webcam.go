@@ -240,7 +240,7 @@ func (w *Webcam) WaitForFrame(timeout uint32) error {
 	if count < 0 || err != nil {
 		return err
 	} else if count == 0 {
-		return new(Timeout)
+		return TimeoutError
 	} else {
 		return nil
 	}

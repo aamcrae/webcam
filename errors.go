@@ -1,8 +1,5 @@
 package webcam
 
-// Timeout error
-type Timeout struct{}
+import "errors"
 
-func (e *Timeout) Error() string {
-	return "Timeout occured"
-}
+var TimeoutError = errors.New("camera timeout")

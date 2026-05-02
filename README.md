@@ -29,7 +29,7 @@ for {
 
   switch err.(type) {
   case nil:
-  case *webcam.Timeout:
+  case *webcam.TimeoutError:
     fmt.Fprint(os.Stderr, err.Error())
     continue
   default:
