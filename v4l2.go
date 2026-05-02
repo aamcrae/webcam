@@ -127,7 +127,7 @@ type v4l2_frmsize_stepwise struct {
 	Step_height uint32
 }
 
-//Hack to make go compiler properly align union
+// Hack to make go compiler properly align union
 type v4l2_format_aligned_union struct {
 	data [200 - unsafe.Sizeof(__p)]byte
 	_    unsafe.Pointer
