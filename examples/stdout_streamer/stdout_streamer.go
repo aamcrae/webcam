@@ -6,6 +6,7 @@
 // Example usage: go run stdout_streamer.go | vlc -
 package main
 
+import "errors"
 import "github.com/aamcrae/webcam"
 import "os"
 import "fmt"
@@ -69,7 +70,7 @@ func main() {
 	sort.Sort(frames)
 
 	for i, value := range frames {
-		fmt.Fprintf(os.Stderr, "[%d] %s\n", i+1, value.GetString())
+		fmt.Fprintf(os.Stderr, "[%d] %s\n", i+1, value.String())
 	}
 	choice = readChoice(fmt.Sprintf("Choose format [1-%d]: ", len(frames)))
 	size := frames[choice-1]
@@ -93,12 +94,11 @@ func main() {
 	for {
 		err = cam.WaitForFrame(timeout)
 
-		switch err.(type) {
-		case nil:
-		case *webcam.Timeout:
-			fmt.Fprint(os.Stderr, err.Error())
-			continue
-		default:
+		if err != nil {
+			if errors.Is(err, webcam.TimeoutError) {
+				fmt.Fprint(os.Stderr, err.Error())
+				continue
+			}
 			panic(err.Error())
 		}
 

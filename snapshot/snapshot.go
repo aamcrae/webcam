@@ -91,7 +91,7 @@ func (c *Snapper) Open(device string, format frame.FourCC, w, h int) (ret error)
 	}
 	var found bool
 	for _, value := range c.cam.GetSupportedFrameSizes(pf) {
-		if Match(value, w, h) {
+		if value.Match(w, h) {
 			found = true
 			break
 		}
@@ -169,18 +169,4 @@ func (c *Snapper) GetControl(id webcam.ControlID) (int32, error) {
 // SetControl sets the selected camera control.
 func (c *Snapper) SetControl(id webcam.ControlID, value int32) error {
 	return c.cam.SetControl(id, value)
-}
-
-// Return true if frame size can accomodate request.
-func Match(fs webcam.FrameSize, w, h int) bool {
-	return canFit(fs.MinWidth, fs.MaxWidth, fs.StepWidth, uint32(w)) &&
-		canFit(fs.MinHeight, fs.MaxHeight, fs.StepHeight, uint32(h))
-}
-
-func canFit(min, max, step, val uint32) bool {
-	// Fixed size exact match.
-	if min == max && step == 0 && val == min {
-		return true
-	}
-	return step != 0 && val >= min && val <= max && ((val-min)%step) == 0
 }

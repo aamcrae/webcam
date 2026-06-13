@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 	cam, err := webcam.Open(*device)
 	if err != nil {
-		panic(fmt.Errorf("%s: %w", *device, err.Error()))
+		panic(fmt.Errorf("%s: %w", *device, err))
 	}
 	defer cam.Close()
 
@@ -34,7 +34,7 @@ func main() {
 		}
 		fmt.Printf("ID:%08x ('%s') %s\n   ", p, pix, s)
 		for _, fs := range cam.GetSupportedFrameSizes(p) {
-			fmt.Printf(" %s", fs.GetString())
+			fmt.Printf(" %s", fs.String())
 		}
 		fmt.Printf("\n")
 	}

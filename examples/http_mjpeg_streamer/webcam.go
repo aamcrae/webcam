@@ -4,6 +4,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"image"
@@ -100,14 +101,14 @@ FMT:
 
 	fmt.Fprintln(os.Stderr, "Supported frame sizes for format", format_desc[format])
 	for _, f := range frames {
-		fmt.Fprintln(os.Stderr, f.GetString())
+		fmt.Fprintln(os.Stderr, f.String())
 	}
 	var size *webcam.FrameSize
 	if *szstr == "" {
 		size = &frames[len(frames)-1]
 	} else {
 		for _, f := range frames {
-			if *szstr == f.GetString() {
+			if *szstr == f.String() {
 				size = &f
 			}
 		}
@@ -117,7 +118,7 @@ FMT:
 		return
 	}
 
-	fmt.Fprintln(os.Stderr, "Requesting", format_desc[format], size.GetString())
+	fmt.Fprintln(os.Stderr, "Requesting", format_desc[format], size.String())
 	f, w, h, _, _, err := cam.SetImageFormat(format, uint32(size.MaxWidth), uint32(size.MaxHeight))
 	if err != nil {
 		log.Println("SetImageFormat return error", err)
@@ -156,14 +157,11 @@ FMT:
 			return
 		}
 
-		switch err.(type) {
-		case nil:
-		case *webcam.Timeout:
+		if err != nil {
 			log.Println(err)
-			continue
-		default:
-			log.Println(err)
-			return
+			if errors.Is(err, webcam.TimeoutError) {
+				continue
+			}
 		}
 
 		frame, err := cam.ReadFrame()
